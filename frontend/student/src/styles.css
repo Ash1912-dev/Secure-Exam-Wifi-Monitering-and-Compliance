@@ -1,0 +1,617 @@
+/* ═══════════════════════════════════════════════════════════
+   SEWCMS Student Portal — Dark Glassmorphism Theme
+   Matches admin dashboard aesthetic
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── CSS Variables ─────────────────────────────────────── */
+:root {
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #111627;
+  --bg-card: rgba(17, 22, 39, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --glass-blur: blur(16px);
+
+  --text-primary: #e8ecf4;
+  --text-secondary: #8892a8;
+  --text-muted: #5a6478;
+
+  --accent-green: #00e676;
+  --accent-green-dim: rgba(0, 230, 118, 0.12);
+  --accent-yellow: #ffd740;
+  --accent-yellow-dim: rgba(255, 215, 64, 0.12);
+  --accent-red: #ff5252;
+  --accent-red-dim: rgba(255, 82, 82, 0.12);
+  --accent-blue: #448aff;
+  --accent-blue-dim: rgba(68, 138, 255, 0.12);
+  --accent-purple: #bb86fc;
+
+  --radius: 16px;
+  --radius-sm: 10px;
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: var(--text-primary);
+}
+
+/* ── Reset ──────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: linear-gradient(145deg, var(--bg-primary) 0%, #0f1528 50%, var(--bg-secondary) 100%);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Page Layout ────────────────────────────────────────── */
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+}
+
+/* ── Glass Card ─────────────────────────────────────────── */
+.card {
+  width: min(520px, 100%);
+  border-radius: var(--radius);
+  padding: 1.8rem;
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.glass {
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.card-icon {
+  font-size: 2rem;
+  margin-bottom: 0.4rem;
+}
+
+/* ── Typography ─────────────────────────────────────────── */
+h1 {
+  font-size: clamp(1.3rem, 4vw, 1.7rem);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.15rem;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+code {
+  background: var(--accent-blue-dim);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: var(--accent-blue);
+  font-family: "JetBrains Mono", "Courier New", monospace;
+}
+
+/* ── WiFi Credentials ───────────────────────────────────── */
+.wifi-credentials {
+  margin: 1.2rem 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+}
+
+.credential-item {
+  padding: 0.9rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.credential-item:last-child {
+  border-bottom: none;
+}
+
+.credential-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.credential-value {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.45rem 0.8rem;
+  border-radius: 6px;
+  font-weight: 600;
+  color: var(--accent-blue);
+  font-size: 1rem;
+}
+
+.credential-value.mono {
+  font-family: "JetBrains Mono", "Courier New", monospace;
+  letter-spacing: 0.15em;
+}
+
+/* ── Steps Box ──────────────────────────────────────────── */
+.steps-box {
+  background: rgba(255, 215, 64, 0.06);
+  border-left: 3px solid var(--accent-yellow);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.steps-box ol {
+  padding-left: 1.3rem;
+  margin: 0;
+}
+
+.steps-box li {
+  margin-bottom: 0.4rem;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.steps-box li:last-child {
+  margin-bottom: 0;
+}
+
+.steps-box li strong {
+  color: var(--accent-blue);
+}
+
+/* ── Form ───────────────────────────────────────────────── */
+.form-stack {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1.2rem;
+}
+
+.form-group {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+input::placeholder {
+  color: var(--text-muted);
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(68, 138, 255, 0.15);
+}
+
+input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Buttons ────────────────────────────────────────────── */
+.btn {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1.2rem;
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: inherit;
+}
+
+.btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #00c853, #00e676);
+  color: #0a0e1a;
+  margin-top: 0.3rem;
+}
+
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 4px 24px rgba(0, 230, 118, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-logout {
+  background: linear-gradient(135deg, #d32f2f, #ff5252);
+  color: #fff;
+  margin-top: 1rem;
+}
+
+.btn-logout:hover:not(:disabled) {
+  box-shadow: 0 4px 24px rgba(255, 82, 82, 0.35);
+  transform: translateY(-1px);
+}
+
+/* ── Badges ─────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 6px;
+  padding: 0.25rem 0.65rem;
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+}
+
+.badge-success {
+  background: var(--accent-green-dim);
+  color: var(--accent-green);
+}
+
+.badge-warning {
+  background: var(--accent-yellow-dim);
+  color: var(--accent-yellow);
+}
+
+.badge-danger {
+  background: var(--accent-red-dim);
+  color: var(--accent-red);
+}
+
+/* ── Alerts / Banners ───────────────────────────────────── */
+.alert {
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem;
+  margin: 0.8rem 0;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.alert-success {
+  background: var(--accent-green-dim);
+  border: 1px solid rgba(0, 230, 118, 0.2);
+  color: var(--accent-green);
+}
+
+.alert-warning {
+  background: var(--accent-yellow-dim);
+  border: 1px solid rgba(255, 215, 64, 0.2);
+  color: var(--accent-yellow);
+}
+
+.alert-danger {
+  background: var(--accent-red-dim);
+  border: 1px solid rgba(255, 82, 82, 0.2);
+  color: var(--accent-red);
+}
+
+.error-banner {
+  background: var(--accent-red-dim);
+  border: 1px solid rgba(255, 82, 82, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 1rem;
+  color: var(--accent-red);
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin: 0.7rem 0;
+  animation: slideDown 0.3s ease;
+}
+
+.error-banner strong {
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.info-banner {
+  background: var(--accent-blue-dim);
+  border: 1px solid rgba(68, 138, 255, 0.15);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 1rem;
+  color: var(--accent-blue);
+  font-size: 0.88rem;
+  margin: 0.8rem 0;
+}
+
+.warning-note {
+  margin-top: 1rem;
+  padding: 0.7rem;
+  background: var(--accent-yellow-dim);
+  border: 1px solid rgba(255, 215, 64, 0.15);
+  border-radius: var(--radius-sm);
+  color: var(--accent-yellow);
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+.success-note {
+  margin-top: 1rem;
+  padding: 0.7rem;
+  background: var(--accent-green-dim);
+  border: 1px solid rgba(0, 230, 118, 0.15);
+  border-radius: var(--radius-sm);
+  color: var(--accent-green);
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+/* ── Exam Session ───────────────────────────────────────── */
+.exam-card {
+  max-width: 600px;
+  width: 100%;
+}
+
+.exam-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--glass-border);
+  margin-bottom: 1rem;
+}
+
+.exam-header h1 {
+  margin-bottom: 0.2rem;
+}
+
+.timer-box {
+  text-align: center;
+  background: rgba(68, 138, 255, 0.08);
+  border: 1px solid rgba(68, 138, 255, 0.15);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 1rem;
+  min-width: 120px;
+}
+
+.timer-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  font-family: "JetBrains Mono", "Courier New", monospace;
+  color: var(--accent-blue);
+  letter-spacing: 0.08em;
+}
+
+.timer-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 0.15rem;
+}
+
+/* ── Session Status Grid ────────────────────────────────── */
+.session-status-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.session-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.7rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.stat-value {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.stat-value.mono {
+  font-family: "JetBrains Mono", "Courier New", monospace;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.risk-ok {
+  color: var(--accent-green);
+}
+
+.risk-warning {
+  color: var(--accent-yellow);
+}
+
+.risk-critical {
+  color: var(--accent-red);
+}
+
+/* ── Reminders ──────────────────────────────────────────── */
+.reminders {
+  background: rgba(255, 82, 82, 0.04);
+  border-left: 3px solid var(--accent-red);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  margin: 0.8rem 0;
+}
+
+.reminders ul {
+  padding-left: 1.3rem;
+  margin: 0;
+}
+
+.reminders li {
+  margin-bottom: 0.35rem;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.reminders li:last-child {
+  margin-bottom: 0;
+}
+
+.reminders li strong {
+  color: var(--accent-blue);
+}
+
+/* ── Loading / Syncing ──────────────────────────────────── */
+.syncing-text {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin: 0.6rem 0;
+  animation: pulse 1.5s infinite;
+}
+
+/* ── Animations ─────────────────────────────────────────── */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.slide-in {
+  animation: slideDown 0.35s ease;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .card {
+    padding: 1.2rem;
+    border-radius: 14px;
+  }
+
+  .exam-header {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .timer-box {
+    width: 100%;
+  }
+
+  .timer-value {
+    font-size: 1.3rem;
+  }
+
+  .session-status-grid {
+    grid-template-columns: 1fr;
+  }
+
+  h1 {
+    font-size: 1.2rem;
+  }
+
+  .credential-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+
+  .credential-value {
+    width: 100%;
+    text-align: center;
+  }
+
+  .steps-box ol {
+    padding-left: 1.1rem;
+  }
+
+  .reminders ul {
+    padding-left: 1.1rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .page {
+    padding: 0.8rem;
+  }
+
+  .btn {
+    font-size: 0.85rem;
+    padding: 0.65rem 1rem;
+  }
+
+  input {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.75rem;
+  }
+}
