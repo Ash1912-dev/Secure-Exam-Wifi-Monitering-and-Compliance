@@ -164,7 +164,6 @@ export default function App() {
         risk_score: result.student.risk_score,
         current_ssid: result.student.current_ssid,
         allowed_ssid: result.allowed_ssid,
-        allowed_password: result.allowed_password,
       });
       setStatus(result.student.status);
       setRiskScore(result.student.risk_score);

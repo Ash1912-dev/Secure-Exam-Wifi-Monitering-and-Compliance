@@ -63,7 +63,7 @@ const char* BACKEND_SCAN_URL = "http://192.168.1.7:5000/scan";
 String DEVICE_TOKEN = "";
 
 
-const unsigned long SCAN_INTERVAL_MS = 5000;  // Scan every 5 seconds
+const unsigned long SCAN_INTERVAL_MS = 3000;  // Scan every 3 seconds
 const unsigned long STATUS_CHECK_INTERVAL_MS = 10000;  // Check exam status every 10 seconds
 const int MAX_NETWORKS = 30;
 const int HTTP_RETRY_COUNT = 3;
@@ -72,6 +72,12 @@ const int HTTP_TIMEOUT_MS = 10000;
 // ============================================================================
 // STATE VARIABLES
 // ============================================================================
+
+// ── Hardware Pins ───────────────────────────────────────────────────────────
+const int GREEN_LED_PIN = 4;
+const int RED_LED_PIN = 5;
+const int BUZZER_PIN = 18;
+const int BUTTON_PIN = 19; // Button for network reset
 
 unsigned long lastScanMs = 0;
 unsigned long lastStatusCheckMs = 0;
@@ -86,6 +92,52 @@ String devicePassword = "";             // Device WiFi password (from backend)
 String allowedSSID = "";                // Exam SSID from backend
 String previousAllowedSSID = "";        // Track SSID changes
 bool ssidMismatchDetected = false;      // Track if current SSID != allowed SSID
+bool studentViolationDetected = false;  // Track if any student is flagged as disconnected by backend
+unsigned long lastBuzzerToggleMs = 0;
+bool buzzerState = false;
+
+
+// ============================================================================
+// HARDWARE STATUS
+// ============================================================================
+
+void updateHardwareStatus() {
+  /**
+   * Physical status indicator logic.
+   * - Exam inactive: all off
+   * - Mismatch/Disconnect detected: red ON + buzzer BLINK (300ms)
+   * - Exam active + no mismatch: green ON
+   */
+   if (WiFi.status() != WL_CONNECTED) {
+      ssidMismatchDetected = true; // Instantly mark disconnected as mismatch
+   }
+
+  // Bypass exam active check if a student is disconnected (still want alarm)
+  if (!examActive && !studentViolationDetected) {
+    digitalWrite(GREEN_LED_PIN, LOW);
+    digitalWrite(RED_LED_PIN, LOW);
+    digitalWrite(BUZZER_PIN, LOW);
+    buzzerState = false;
+    return;
+  }
+
+  if (ssidMismatchDetected || studentViolationDetected || WiFi.status() != WL_CONNECTED) {
+    digitalWrite(GREEN_LED_PIN, LOW);
+    digitalWrite(RED_LED_PIN, HIGH);
+    
+    // Non-blocking buzzer blink every 300ms
+    if (millis() - lastBuzzerToggleMs >= 300) {
+      lastBuzzerToggleMs = millis();
+      buzzerState = !buzzerState;
+      digitalWrite(BUZZER_PIN, buzzerState ? HIGH : LOW);
+    }
+  } else {
+    digitalWrite(GREEN_LED_PIN, HIGH);
+    digitalWrite(RED_LED_PIN, LOW);
+    digitalWrite(BUZZER_PIN, LOW);
+    buzzerState = false;
+  }
+}
 
 
 
@@ -106,7 +158,6 @@ bool connectToWifi() {
 
   // Set timeout for captive portal so device doesn't hang forever
   // wifiManager.setConfigPortalTimeout(180); // 3 minutes
-  wifiManager.resetSettings();
   // Connect to saved WiFi or start captive portal if none is found
   bool connected = wifiManager.autoConnect("SEWCMS_Setup");
 
@@ -270,6 +321,19 @@ bool fetchExamStatus() {
           examActive = doc["exam_active"].as<bool>();
           String newAllowedSSID = doc["allowed_ssid"].as<String>();
           
+          // Extract student disconnects to trigger hardware alarm
+          int total_disconnected = 0;
+          if (doc.containsKey("statistics")) {
+            total_disconnected = doc["statistics"]["total_disconnected"].as<int>();
+          }
+          studentViolationDetected = (total_disconnected > 0);
+          
+          if (studentViolationDetected) {
+            Serial.print("[ALERT] Backend reported ");
+            Serial.print(total_disconnected);
+            Serial.println(" disconnected student(s)!");
+          }
+          
           // Detect SSID change from backend
           if (newAllowedSSID != previousAllowedSSID && previousAllowedSSID.length() > 0) {
             Serial.println();
@@ -293,6 +357,7 @@ bool fetchExamStatus() {
           
           // Validate current connection
           validateSSIDConnection();
+          updateHardwareStatus();
 
           http.end();
           return true;
@@ -356,6 +421,8 @@ void validateSSIDConnection() {
     Serial.println("    [Note] Backend will flag this as violation");
     ssidMismatchDetected = true;
   }
+
+  updateHardwareStatus();
 }
 
 
@@ -493,6 +560,10 @@ void scanAndSend() {
   }
 
   // Log current SSID status before scanning
+  connectedSSID = WiFi.SSID(); // Refresh actively connected SSID
+  validateSSIDConnection(); 
+  updateHardwareStatus();
+
   Serial.println();
   Serial.println("[SCAN] ========================================");
   Serial.print("[SCAN] Device connected to: ");
@@ -517,8 +588,8 @@ void scanAndSend() {
   pBLEScan->setInterval(100);
   pBLEScan->setWindow(99);
 
-  // Start BLE scan for 4 seconds (blocks until complete)
-  BLEScanResults* foundBtDevices = pBLEScan->start(4, false);
+  // Start BLE scan for 2 seconds (blocks until complete)
+  BLEScanResults* foundBtDevices = pBLEScan->start(2, false);
   
   int networkCount = WiFi.scanNetworks();
   
@@ -574,6 +645,17 @@ void setup() {
   Serial.begin(115200);
   delay(800);
 
+  // Initialize Hardware Pins
+  pinMode(GREEN_LED_PIN, OUTPUT);
+  pinMode(RED_LED_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+
+  // Ensure LEDs and buzzer are OFF initially
+  digitalWrite(GREEN_LED_PIN, LOW);
+  digitalWrite(RED_LED_PIN, LOW);
+  digitalWrite(BUZZER_PIN, LOW);
+
   // Generate unique device token from MAC address
   WiFi.mode(WIFI_STA);  // Need STA mode to read MAC
   DEVICE_TOKEN = generateDeviceToken();
@@ -620,8 +702,22 @@ void setup() {
 }
 
 void loop() {
+  // Button-triggered network reset
+  if (digitalRead(BUTTON_PIN) == LOW) {
+    Serial.println("[ACTION] Resetting WiFi settings...");
+    delay(300); // Debounce
+    WiFi.disconnect(true);
+    WiFiManager wm;
+    wm.resetSettings();
+    ESP.restart();
+  }
+
+  updateHardwareStatus();
+
   // Handle WiFi connection state
   if (WiFi.status() != WL_CONNECTED) {
+    ssidMismatchDetected = true;
+    updateHardwareStatus(); // Trigger immediate visual feedback before blocking reconnect
     Serial.println("[WARNING] WiFi disconnected, attempting to reconnect...");
     connectToWifi();
     return;

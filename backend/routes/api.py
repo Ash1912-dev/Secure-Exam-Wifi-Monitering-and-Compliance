@@ -12,8 +12,8 @@ api_bp = Blueprint("api", __name__)
 
 # Configuration
 ALLOWED_SSID = os.getenv("SEWCMS_ALLOWED_SSID", "")
-HEARTBEAT_TIMEOUT_SECONDS = int(os.getenv("SEWCMS_HEARTBEAT_TIMEOUT", "600"))  # 10 minutes
-GRACE_PERIOD_SECONDS = int(os.getenv("SEWCMS_GRACE_PERIOD", "45"))  # 45 sec grace period
+HEARTBEAT_TIMEOUT_SECONDS = int(os.getenv("SEWCMS_HEARTBEAT_TIMEOUT", "20"))  # 20 seconds
+GRACE_PERIOD_SECONDS = int(os.getenv("SEWCMS_GRACE_PERIOD", "5"))  # 5 sec grace period
 HOTSPOT_RSSI_THRESHOLD = int(os.getenv("SEWCMS_HOTSPOT_RSSI", "-55"))
 RISK_THRESHOLD_MEDIUM = int(os.getenv("SEWCMS_RISK_MEDIUM", "30"))
 RISK_THRESHOLD_HIGH = int(os.getenv("SEWCMS_RISK_HIGH", "75"))
@@ -592,15 +592,17 @@ def heartbeat():
         response_status = "Connected"
         
         # Check for network switch (only if allowed SSID is configured)
-        if allowed_ssid and ssid != allowed_ssid and not has_recent_violation(db, student.id, "NETWORK_SWITCH"):
-            add_violation(
-                db,
-                student,
-                "NETWORK_SWITCH",
-                f"Student connected to unauthorized SSID '{ssid}'",
-                NETWORK_SWITCH_RISK,
-            )
-            response_status = "Violation"
+        if allowed_ssid and ssid != allowed_ssid:
+            student.status = "Disconnected"
+            response_status = "Disconnected"
+            if not has_recent_violation(db, student.id, "NETWORK_SWITCH"):
+                add_violation(
+                    db,
+                    student,
+                    "NETWORK_SWITCH",
+                    f"Student connected to unauthorized SSID '{ssid}'. Disconnected immediately.",
+                    NETWORK_SWITCH_RISK,
+                )
 
         db.commit()
 
